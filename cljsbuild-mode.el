@@ -47,6 +47,8 @@
 
 (defvar cljsbuild-hide-buffer-on-success nil)
 
+(defvar cljsbuild-verbose t)
+
 (defun cljsbuild-on-buffer-change
   (beginning end len)
   (let ((new-text (buffer-substring-no-properties beginning end))
@@ -56,10 +58,13 @@
       (insert new-text)
       (goto-char (point-min))
       (when (re-search-forward "Successfully compiled" nil t)
+        (when cljsbuild-verbose
+          (message "Cljs-Build compilation success"))
         (setq success t))
       (goto-char (point-min))
       (when (re-search-forward "Compiling.+failed:\$" nil t)
-        (message "Cljs-Build compilation failure")
+        (when cljsbuild-verbose
+          (message "Cljs-Build compilation failure"))
         (setq failure t)))
     (when (and failure (not (get-buffer-window (buffer-name) 'visible)))
       ;; if the compilation buffer is not visible, shows it
