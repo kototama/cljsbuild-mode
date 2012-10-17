@@ -60,9 +60,9 @@
       (goto-char (point-min))
       (when (re-search-forward "Compiling.+failed:\$" nil t)
         (message "Cljs-Build compilation failure")
-        (message "inserted:" new-text)
         (setq failure t)))
-    (when failure
+    (when (and failure (not (get-buffer-window (buffer-name) 'visible)))
+      ;; if the compilation buffer is not visible, shows it
       (switch-to-buffer-other-window (buffer-name) t))
     (when (and success cljsbuild-hide-buffer-on-success)
       (delete-windows-on (buffer-name)))))
