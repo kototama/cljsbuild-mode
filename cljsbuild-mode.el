@@ -45,35 +45,40 @@
   :gkeymaproup 'cljsbuild-mode
   :after-hook (cljsbuild-init-mode))
 
+(defvar cljsbuild-verbose t)
+
+(defvar cljsbuild-show-buffer-on-failure t)
+
 (defvar cljsbuild-hide-buffer-on-success nil)
 
-(defvar cljsbuild-verbose t)
+(defvar cljsbuild-show-buffer-on-warnings t)
 
 (defun cljsbuild-on-buffer-change
   (beginning end len)
-  (let ((new-text (buffer-substring-no-properties beginning end))
-        (failure nil)
-        (success nil))
-    (with-temp-buffer
-      (insert new-text)
-      (goto-char (point-min))
-      (when (re-search-forward "Successfully compiled" nil t)
-        (when cljsbuild-verbose
-          (message "Cljs-Build compilation success"))
-        (setq success t))
-      (goto-char (point-min))
-      (when (re-search-forward "Compiling.+failed:\$" nil t)
-        (when cljsbuild-verbose
-          (message "Cljs-Build compilation failure"))
-        (setq failure t)))
-    (when (and failure (not (get-buffer-window (buffer-name) 'visible)))
-      ;; if the compilation buffer is not visible, shows it
-      (switch-to-buffer-other-window (buffer-name) t))
-    (when (and success cljsbuild-hide-buffer-on-success)
-      (delete-windows-on (buffer-name)))))
+  (let ((inserted (buffer-substring-no-properties beginning end))
+        (buffer-visible (get-buffer-window (buffer-name) 'visible)))
+    (cond ((string-match "^Successfully compiled" inserted)
+           (when cljsbuild-verbose
+             (message "Cljsbuild compilation success"))
+           (when cljsbuild-hide-buffer-on-success
+             ;; hides the compilation buffer
+             (delete-windows-on (buffer-name))))
+          ((string-match "^Compiling.+failed:$" inserted)
+           (when cljsbuild-verbose
+             (message "Cljsbuild compilation failure"))
+           (when (and (not buffer-visible) cljsbuild-show-buffer-on-failure)
+             ;; if the compilation buffer is not visible, shows it
+             (switch-to-buffer-other-window (buffer-name) t)))
+          ((string-match "^WARNING:" inserted)
+           (when cljsbuild-verbose
+             (message "Cljsbuild compilation warning"))
+           (when (and (not buffer-visible) cljsbuild-show-buffer-on-warnings)
+             (switch-to-buffer-other-window (buffer-name) t))))))
 
 (defun cljsbuild-init-mode
   ()
+    "Initializes the minor mode and registers a change hook on the
+compilation buffer"
   (remove-hook 'after-change-functions 'cljsbuild-on-buffer-change)
   (add-hook 'after-change-functions 'cljsbuild-on-buffer-change nil t))
 
