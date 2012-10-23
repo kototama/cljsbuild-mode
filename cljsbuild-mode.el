@@ -3,8 +3,8 @@
 ;; Copyright 2012 Kototama
 
 ;; Authors: Kototama <kototamo gmail com>
-;; Version: 0.1.0
-;; Package-version: 0.1.0
+;; Version: 0.1.1
+;; Package-version: 0.1.1
 ;; Keywords: clojure, clojurescript, leiningen, compilation
 ;; URL: http://github.com/kototama/cljsbuild-mode
 
@@ -63,7 +63,7 @@
            (when cljsbuild-hide-buffer-on-success
              ;; hides the compilation buffer
              (delete-windows-on (buffer-name))))
-          ((string-match "^Compiling.+failed:$" inserted)
+          ((string-match "^Compiling.+failed.$" inserted)
            (when cljsbuild-verbose
              (message "Cljsbuild compilation failure"))
            (when (and (not buffer-visible) cljsbuild-show-buffer-on-failure)
@@ -82,6 +82,6 @@ compilation buffer"
   (remove-hook 'after-change-functions 'cljsbuild-on-buffer-change)
   (add-hook 'after-change-functions 'cljsbuild-on-buffer-change nil t))
 
-(provide 'cljsbuild)
+(provide 'cljsbuild-mode)
 
 ;;; cljsbuild-mode.el ends here
