@@ -8,7 +8,7 @@ succeed.
 
 ## How to use it?
 
-1. Install the mode as usual
+1. Install the mode with M-x package-install RET cljsbuild-mode
 2. Start a terminal with M-x term or M-x multi-term
 3. Run 'lein cljsbuild auto' in it
 4. Start cljsbuild-mode in the terminal buffer with M-x cljsbuild-mode
