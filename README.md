@@ -9,9 +9,8 @@ succeed.
 ## How to use it?
 
 1. Install the mode with M-x package-install RET cljsbuild-mode
-2. Add (require 'cljsbuild-mode) in your ~/.emacs.d/init.el file
-3. Start a terminal with M-x term or M-x multi-term
-4. Run 'lein cljsbuild auto' in it
-5. Start cljsbuild-mode in the terminal buffer with M-x cljsbuild-mode
-6. Enjoy!
+2. Start a terminal with M-x term or M-x multi-term
+3. Run 'lein cljsbuild auto' in it
+4. Start cljsbuild-mode in the terminal buffer with M-x cljsbuild-mode
+5. Enjoy!
 
