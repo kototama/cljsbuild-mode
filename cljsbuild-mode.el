@@ -30,16 +30,25 @@
 ;; compilation failed and (optionally) hides it when the compilation
 ;; succeed.
 
-;; Basic steps to setup:
+;; Installation:
 ;;
-;; 1. Install the mode with M-x package-install RET cljsbuild-mode
-;; 2. Add (require 'cljsbuild-mode) in your ~/.emacs.d/init.el file
-;; 3. Start a terminal with M-x term or M-x multi-term
-;; 4. Run 'lein cljsbuild auto' in it
-;; 5. Start cljsbuild-mode in the terminal buffer with M-x cljsbuild-mode
-;; 6. Enjoy!
+;; Packages are available in the Marmalade and MELPA repositories.
+;; Install the mode with "M-x package-install RET cljsbuild-mode".
+;;
+;; Usage:
+;;
+;; 1. M-x cljsbuild-auto
+;; 2. Enjoy!
+;;
+;; Alternatively, if you prefer to work from a terminal:
+;;
+;; 1. Start a terminal with M-x term or M-x multi-term
+;; 2. Run 'lein cljsbuild auto' in it
+;; 3. Start cljsbuild-mode in the terminal buffer with M-x cljsbuild-mode
 
+(require 'ansi-color)
 
+;;;###autoload
 (define-minor-mode cljsbuild-mode
   "ClojureScript Build mode"
   :init-value nil
@@ -83,6 +92,37 @@
 compilation buffer"
   (remove-hook 'after-change-functions 'cljsbuild-on-buffer-change)
   (add-hook 'after-change-functions 'cljsbuild-on-buffer-change nil t))
+
+(defun cljsbuild--insertion-filter (proc string)
+  "When PROC sends STRING, apply ansi color codes and insert into buffer."
+  (with-current-buffer (process-buffer proc)
+    (let ((moving (= (point) (process-mark proc))))
+      (save-excursion
+	(goto-char (process-mark proc))
+	(insert (ansi-color-apply string))
+	(set-marker (process-mark proc) (point)))
+      (when moving
+        (goto-char (process-mark proc))))))
+
+;;;###autoload
+(defun cljsbuild-auto ()
+  "Run \"lein cljsbuild auto\" in a background buffer."
+  (interactive)
+  (unless (locate-dominating-file default-directory "project.clj")
+    (error "Not inside a leiningen project"))
+  (with-current-buffer (get-buffer-create "*cljsbuild*")
+    (when (get-buffer-process (current-buffer))
+      (error "Lein cljsbuild is already running"))
+    (buffer-disable-undo)
+    (let* ((proc (start-process "cljsbuild"
+                                (current-buffer)
+                                "lein" "cljsbuild" "auto")))
+      (cljsbuild-mode)
+      ;; Colorize output
+      (set-process-filter proc 'cljsbuild--insertion-filter)
+      (font-lock-mode)
+      (message "Started cljsbuild."))))
+
 
 (provide 'cljsbuild-mode)
 
