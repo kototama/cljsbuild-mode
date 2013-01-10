@@ -3,8 +3,8 @@
 ;; Copyright 2012 Kototama
 
 ;; Authors: Kototama <kototamo gmail com>
-;; Version: 0.1.2
-;; Package-version: 0.1.2
+;; Version: 0.2.0
+;; Package-version: 0.2.0
 ;; Keywords: clojure, clojurescript, leiningen, compilation
 ;; URL: http://github.com/kototama/cljsbuild-mode
 
