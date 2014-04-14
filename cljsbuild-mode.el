@@ -86,6 +86,9 @@
   (when cljsbuild-verbose
     (apply #'message format-string args)))
 
+(defvar cljsbuild-command1 ()
+  "A custom command to pass to cljsbuild")
+
 (defun cljsbuild-on-buffer-change
   (beginning end len)
   (let ((inserted (buffer-substring-no-properties beginning end))
@@ -123,24 +126,55 @@ compilation buffer"
       (when moving
         (goto-char (process-mark proc))))))
 
+(defun cljsbuild-clear-command ()
+  (progn (setq cljsbuild-command nil)))
+
+(defun cljsbuild-create-command (cmd)
+  (let ((build-cmds (split-string cmd)))
+    (case (length build-cmds)
+      (1 (push (first build-cmds) cljsbuild-command))
+      (2 (progn (push (first build-cmds) cljsbuild-command)
+                (push (second build-cmds) cljsbuild-command)))
+      (t (push "auto" cljsbuild-command )))))
+
+
 ;;;###autoload
-(defun cljsbuild-auto ()
-  "Run \"lein cljsbuild auto\" in a background buffer."
-  (interactive)
+(defun cljsbuild-start (cmd)
+  "Run cljsbuild in a background buffer."
+  (interactive (list (read-string "Enter any special cljsbuild commands:")))
   (unless (locate-dominating-file default-directory "project.clj")
     (error "Not inside a leiningen project"))
   (with-current-buffer (get-buffer-create "*cljsbuild*")
     (when (get-buffer-process (current-buffer))
       (error "Lein cljsbuild is already running"))
     (buffer-disable-undo)
-    (let* ((proc (start-process "cljsbuild"
-                                (current-buffer)
-                                "lein" "cljsbuild" "auto")))
+    (cljsbuild-clear-command)
+    (cljsbuild-create-command cmd)
+    (let* ((proc (if (> (length cljsbuild-command) 1)
+                     (start-process "cljsbuild"
+                                    (current-buffer)
+                                    "lein" "cljsbuild"
+                                    (second cljsbuild-command)
+                                    (first cljsbuild-command))
+                   (start-process "cljsbuild"
+                                    (current-buffer)
+                                    "lein" "cljsbuild"
+                                    (first cljsbuild-command)))))
       (cljsbuild-mode)
       ;; Colorize output
       (set-process-filter proc 'cljsbuild--insertion-filter)
       (font-lock-mode)
       (message "Started cljsbuild."))))
+
+(defun cljsbuild-stop ()
+  "Stops the cljsbuild background process"
+  (interactive)
+  (let ((proc (get-buffer-process "*cljsbuild*")))
+    (if proc
+        (progn (kill-process proc)
+               (message "Stopped cljsbuild.")
+               (kill-buffer "*cljsbuild*"))
+      (error "Lein cljsbuild is not running"))))
 
 
 (provide 'cljsbuild-mode)
