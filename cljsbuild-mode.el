@@ -127,7 +127,7 @@ compilation buffer"
 ;;;###autoload
 (defun cljsbuild-start (cmd)
   "Run cljsbuild in a background buffer."
-  (interactive (list (read-string "Enter any special cljsbuild commands:")))
+  (interactive (list (read-string "Cljsbuild command:")))
   (unless (locate-dominating-file default-directory "project.clj")
     (error "Not inside a leiningen project"))
   (with-current-buffer (get-buffer-create "*cljsbuild*")
