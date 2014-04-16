@@ -107,7 +107,7 @@
 
 (defun cljsbuild-init-mode
   ()
-    "Initializes the minor mode and registers a change hook on the
+  "Initializes the minor mode and registers a change hook on the
 compilation buffer"
   (remove-hook 'after-change-functions 'cljsbuild-on-buffer-change)
   (add-hook 'after-change-functions 'cljsbuild-on-buffer-change nil t))
@@ -123,24 +123,36 @@ compilation buffer"
       (when moving
         (goto-char (process-mark proc))))))
 
+
 ;;;###autoload
-(defun cljsbuild-auto ()
-  "Run \"lein cljsbuild auto\" in a background buffer."
-  (interactive)
+(defun cljsbuild-start (cmd)
+  "Run cljsbuild in a background buffer."
+  (interactive (list (read-string "Cljsbuild command:")))
   (unless (locate-dominating-file default-directory "project.clj")
     (error "Not inside a leiningen project"))
   (with-current-buffer (get-buffer-create "*cljsbuild*")
     (when (get-buffer-process (current-buffer))
       (error "Lein cljsbuild is already running"))
     (buffer-disable-undo)
-    (let* ((proc (start-process "cljsbuild"
-                                (current-buffer)
-                                "lein" "cljsbuild" "auto")))
+    (let* ((proc (eval `(start-process "cljsbuild"
+                                       (current-buffer)
+                                       "lein" "cljsbuild"
+                                       ,@(split-string cmd)))))
       (cljsbuild-mode)
       ;; Colorize output
       (set-process-filter proc 'cljsbuild--insertion-filter)
       (font-lock-mode)
       (message "Started cljsbuild."))))
+
+(defun cljsbuild-stop ()
+  "Stops the cljsbuild background process"
+  (interactive)
+  (let ((proc (get-buffer-process "*cljsbuild*")))
+    (if proc
+        (progn (kill-process proc)
+               (message "Stopped cljsbuild.")
+               (kill-buffer "*cljsbuild*"))
+      (error "Lein cljsbuild is not running"))))
 
 
 (provide 'cljsbuild-mode)

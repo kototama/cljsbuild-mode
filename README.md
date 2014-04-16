@@ -14,8 +14,9 @@ with <kbd>M-x package-install RET cljsbuild-mode</kbd>.
 
 ## Usage
 
-1. <kbd>M-x cljsbuild-auto</kbd>
-2. Enjoy!
+1. <kbd>M-x cljsbuild-start</kbd>
+2. <kbd>M-x cljsbuild-stop</kbd>
+3. Enjoy!
 
 Alternatively, if you prefer to work from a terminal:
 
