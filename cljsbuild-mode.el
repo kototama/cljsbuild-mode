@@ -124,7 +124,6 @@ compilation buffer"
         (goto-char (process-mark proc))))))
 
 
-
 ;;;###autoload
 (defun cljsbuild-start (cmd)
   "Run cljsbuild in a background buffer."
