@@ -53,6 +53,8 @@
   :prefix "cljsbuild-"
   :group 'applications)
 
+(defvar cljsbuild-command "cljsbuild" "The lein command to launch")
+
 ;;;###autoload
 (define-minor-mode cljsbuild-mode
   "ClojureScript Build mode"
@@ -139,8 +141,8 @@ compilation buffer"
       (error "Lein cljsbuild is already running"))
     (buffer-disable-undo)
     (let ((proc (if (string= cmd "")
-                    (start-process "cljsbuild" (current-buffer) "lein" "cljsbuild" "auto")
-                  (apply #'start-process "cljsbuild" (current-buffer) "lein" "cljsbuild" (split-string cmd)))))
+                    (start-process "cljsbuild" (current-buffer) "lein" cljsbuild-command "auto")
+                  (apply #'start-process "cljsbuild" (current-buffer) "lein" cljsbuild-command (split-string cmd)))))
       (set-process-sentinel proc 'cljsbuild-process-sentinel)
       (cljsbuild-mode)
       ;; Colorize output
