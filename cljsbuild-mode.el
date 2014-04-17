@@ -3,8 +3,8 @@
 ;; Copyright 2012 Kototama
 
 ;; Authors: Kototama <kototamo gmail com>
-;; Version: 0.2.0
-;; Package-version: 0.2.0
+;; Version: 0.3.0
+;; Package-version: 0.3.0
 ;; Keywords: clojure, clojurescript, leiningen, compilation
 ;; URL: http://github.com/kototama/cljsbuild-mode
 
@@ -37,7 +37,7 @@
 ;;
 ;; Usage:
 ;;
-;; 1. M-x cljsbuild-auto
+;; 1. M-x cljsbuild-start
 ;; 2. Enjoy!
 ;;
 ;; Alternatively, if you prefer to work from a terminal:
@@ -107,12 +107,12 @@
 
 (defun cljsbuild-init-mode
   ()
-  "Initializes the minor mode and registers a change hook on the
+  "Initialize the minor mode and register a change hook on the
 compilation buffer"
   (remove-hook 'after-change-functions 'cljsbuild-on-buffer-change)
   (add-hook 'after-change-functions 'cljsbuild-on-buffer-change nil t))
 
-(defun cljsbuild--insertion-filter (proc string)
+(defun cljsbuild-insertion-filter (proc string)
   "When PROC sends STRING, apply ansi color codes and insert into buffer."
   (with-current-buffer (process-buffer proc)
     (let ((moving (= (point) (process-mark proc))))
@@ -123,29 +123,33 @@ compilation buffer"
       (when moving
         (goto-char (process-mark proc))))))
 
+(defun cljsbuild-process-sentinel
+  (process event)
+  "Display a message when a change to the process occurs."
+  (message "Cljsbuild: %s" event))
 
 ;;;###autoload
 (defun cljsbuild-start (cmd)
   "Run cljsbuild in a background buffer."
-  (interactive (list (read-string "Cljsbuild command:")))
+  (interactive "sCljsbuild command:")
   (unless (locate-dominating-file default-directory "project.clj")
     (error "Not inside a leiningen project"))
   (with-current-buffer (get-buffer-create "*cljsbuild*")
     (when (get-buffer-process (current-buffer))
       (error "Lein cljsbuild is already running"))
     (buffer-disable-undo)
-    (let* ((proc (eval `(start-process "cljsbuild"
-                                       (current-buffer)
-                                       "lein" "cljsbuild"
-                                       ,@(split-string cmd)))))
+    (let ((proc (if (string= cmd "")
+                    (start-process "cljsbuild" (current-buffer) "lein" "cljsbuild" "auto")
+                  (apply #'start-process "cljsbuild" (current-buffer) "lein" "cljsbuild" (split-string cmd)))))
+      (set-process-sentinel proc 'cljsbuild-process-sentinel)
       (cljsbuild-mode)
       ;; Colorize output
-      (set-process-filter proc 'cljsbuild--insertion-filter)
+      (set-process-filter proc 'cljsbuild-insertion-filter)
       (font-lock-mode)
       (message "Started cljsbuild."))))
 
 (defun cljsbuild-stop ()
-  "Stops the cljsbuild background process"
+  "Stop the cljsbuild background process"
   (interactive)
   (let ((proc (get-buffer-process "*cljsbuild*")))
     (if proc
