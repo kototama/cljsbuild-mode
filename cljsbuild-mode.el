@@ -101,7 +101,9 @@ See `compilation-error-regexp-alist' for semantics.")
 
 (defvar cljsbuild-compilation-mode-map
   (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map compilation-mode-map))
+    (set-keymap-parent map compilation-mode-map)
+    (define-key map (kbd "g") 'cljsbuild-start)
+    map)
   "Keymap for `cljsbuild-compilation-mode' buffers.")
 
 (defun cljsbuild-on-buffer-change
