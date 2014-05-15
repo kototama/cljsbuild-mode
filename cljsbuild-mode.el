@@ -3,8 +3,8 @@
 ;; Copyright 2012 Kototama
 
 ;; Authors: Kototama <kototamo gmail com>
-;; Version: 0.3.0
-;; Package-version: 0.3.0
+;; Version: 0.4.0
+;; Package-version: 0.4.0
 ;; Keywords: clojure, clojurescript, leiningen, compilation
 ;; URL: http://github.com/kototama/cljsbuild-mode
 
@@ -37,14 +37,8 @@
 ;;
 ;; Usage:
 ;;
-;; 1. M-x cljsbuild-start
-;; 2. Enjoy!
+;; M-x cljsbuild-start
 ;;
-;; Alternatively, if you prefer to work from a terminal:
-;;
-;; 1. Start a terminal with M-x term or M-x multi-term
-;; 2. Run 'lein cljsbuild auto' in it
-;; 3. Start cljsbuild-mode in the terminal buffer with M-x cljsbuild-mode
 
 (require 'ansi-color)
 (require 'compile)
