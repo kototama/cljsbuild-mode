@@ -39,6 +39,7 @@
 ;;
 ;; M-x cljsbuild-start
 ;;
+;;; Code:
 
 (require 'ansi-color)
 (require 'compile)
