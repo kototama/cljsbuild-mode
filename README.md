@@ -9,7 +9,7 @@ succeed.
 ## Installation
 
 Packages are available in the Marmalade and
-[MELPA](http://melpa.milkbox.net/) repositories.  Install the mode
+[MELPA](https://melpa.org/) repositories.  Install the mode
 with <kbd>M-x package-install RET cljsbuild-mode</kbd>.
 
 ## Usage
