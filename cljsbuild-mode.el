@@ -1,10 +1,10 @@
 ;;; cljsbuild-mode.el --- A minor mode for the ClojureScript 'lein cljsbuild' command
 
-;; Copyright 2012 Kototama
+;; Copyright 2012-2016 Kototama
 
 ;; Authors: Kototama <kototamo gmail com>
-;; Version: 0.4.0
-;; Package-version: 0.4.0
+;; Version: 0.4.1
+;; Package-version: 0.4.1
 ;; Keywords: clojure, clojurescript, leiningen, compilation
 ;; URL: http://github.com/kototama/cljsbuild-mode
 
@@ -111,7 +111,10 @@ See `compilation-error-regexp-alist' for semantics.")
   (beginning end &optional len)
   (let ((inserted (buffer-substring-no-properties beginning end))
         (buffer-visible (get-buffer-window (buffer-name) 'visible)))
-    (cond ((string-match "^Successfully compiled" inserted)
+    (cond ((string-match "^Compiling .+\.\.\.$" inserted)
+           (with-current-buffer (buffer-name)
+             (delete-region (point-min) (1- beginning))))
+          ((string-match "^Successfully compiled" inserted)
            (cljsbuild-message "Cljsbuild compilation success")
            (when cljsbuild-hide-buffer-on-success
              ;; hides the compilation buffer
